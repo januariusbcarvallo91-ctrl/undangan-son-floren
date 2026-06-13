@@ -15,40 +15,88 @@ export default function AudioPlayer({ isOpen }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Play audio when invitation is opened
+  // Synchronize physical play/pause state with React state using standard HTML audio event listeners.
+  // This guarantees the UI icon (Music spinner / Muted indicator) perfectly reflects physical audio state.
   useEffect(() => {
-    if (isOpen) {
-      setIsPlaying(true);
-      if (audioRef.current) {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handlePlayState = () => setIsPlaying(true);
+    const handlePauseState = () => setIsPlaying(false);
+
+    audio.addEventListener('play', handlePlayState);
+    audio.addEventListener('pause', handlePauseState);
+    audio.addEventListener('playing', handlePlayState);
+
+    return () => {
+      audio.removeEventListener('play', handlePlayState);
+      audio.removeEventListener('pause', handlePauseState);
+      audio.removeEventListener('playing', handlePlayState);
+    };
+  }, []);
+
+  // Intercept client interaction click on the "Buka Undangan" button using event delegation.
+  // Mobile devices (especially iOS and Android) only allow media playback if initiated directly 
+  // within the callback of a physical user click or swipe event.
+  useEffect(() => {
+    const handleGesture = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
+      const openBtn = target.closest('#open-invitation-btn');
+      
+      if (openBtn && audioRef.current) {
+        audioRef.current.play()
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch((err) => {
+            console.warn('Synchronous click audio play initiation allowed or handled:', err);
+          });
+      }
+    };
+
+    document.addEventListener('click', handleGesture, { passive: true });
+    document.addEventListener('touchstart', handleGesture, { passive: true });
+
+    return () => {
+      document.removeEventListener('click', handleGesture);
+      document.removeEventListener('touchstart', handleGesture);
+    };
+  }, []);
+
+  // Catch state transition to play if initial event delegation was skipped
+  useEffect(() => {
+    if (isOpen && audioRef.current) {
+      if (audioRef.current.paused) {
         audioRef.current.play().catch((err) => {
-          console.warn('Autoplay blocked on start:', err);
-          setIsPlaying(false);
+          console.warn('Autoplay fallback on open transition:', err);
         });
       }
     }
   }, [isOpen]);
 
-  // Handle active music player state changes
-  useEffect(() => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.play().catch((err) => {
-        console.warn('Playback block failed:', err);
-        setIsPlaying(false);
-      });
-    } else {
-      audioRef.current.pause();
-    }
-  }, [isPlaying]);
-
   const togglePlayback = () => {
-    setIsPlaying((prev) => !prev);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused) {
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((err) => {
+          console.warn('Sync play toggle error:', err);
+          setIsPlaying(false);
+        });
+    } else {
+      audio.pause();
+      setIsPlaying(false);
+    }
   };
 
   return (
     <>
-      {/* Hidden local/network audio player */}
-      <audio ref={audioRef} src="/api/audio" loop preload="auto" />
+      {/* Hidden local/network audio player pointing directly to local file source */}
+      <audio ref={audioRef} src="/mari-menua-bersama.mp3" loop preload="auto" />
 
       {/* Floating Control Button */}
       <AnimatePresence>

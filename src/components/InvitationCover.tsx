@@ -107,6 +107,7 @@ export default function InvitationCover({ onOpen }: InvitationCoverProps) {
           transition={{ delay: 1.2, duration: 0.8 }}
         >
           <button
+            id="open-invitation-btn"
             onClick={onOpen}
             className="cursor-pointer bg-brand-mocha hover:bg-brand-brown text-white px-8 py-3.5 rounded-full text-xs font-bold tracking-[0.21em] uppercase shadow-md transition duration-500 transform hover:scale-105 active:scale-95 inline-flex items-center gap-2.5 focus:outline-none"
           >

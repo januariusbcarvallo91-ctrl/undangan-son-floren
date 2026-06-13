@@ -113,6 +113,29 @@ async function startServer() {
   // Parse JSON payloads
   app.use(express.json());
 
+  // Direct route for serving the local song
+  app.get('/mari-menua-bersama.mp3', (req, res) => {
+    try {
+      const filePath = path.join(process.cwd(), 'mari-menua-bersama.mp3');
+      if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'audio/mpeg');
+        return res.sendFile(filePath);
+      }
+      
+      const fallbackPath = path.join(process.cwd(), 'wedding-song.mp3');
+      if (fs.existsSync(fallbackPath)) {
+        res.setHeader('Content-Type', 'audio/mpeg');
+        return res.sendFile(fallbackPath);
+      }
+
+      // Wikipedia fallback as last resort
+      res.redirect(302, 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Canon_in_D_Major_%28ISRC_USUAN1100301%29.mp3');
+    } catch (err) {
+      console.error('Direct audio serving failed:', err);
+      res.status(500).send('Internal Server Error serving audio');
+    }
+  });
+
   // Audio stream dispatcher
   app.get('/api/audio', (req, res) => {
     try {
