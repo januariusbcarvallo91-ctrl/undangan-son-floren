@@ -163,11 +163,13 @@ export default function App() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-white/10 via-transparent to-transparent pointer-events-none" />
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-brand-mocha mb-2 text-shadow">
-                {GROOM_DATA.fullName}
-              </h3>
+              <div id="groom-name-box" className="inline-block bg-[#005691] text-white px-4 py-1.5 rounded-xl shadow-sm mb-3 max-w-full">
+                <h3 className="font-serif text-[12px] min-[360px]:text-[13.5px] min-[390px]:text-[15px] sm:text-lg md:text-xl font-bold tracking-tight whitespace-nowrap text-white">
+                  {GROOM_DATA.fullName}
+                </h3>
+              </div>
               <p className="text-xs sm:text-sm text-brand-brown/95 max-w-xs mx-auto leading-relaxed text-shadow-sm font-medium">
-                Putra Pertama Dari Pasangan <br />
+                Putra Dari Pasangan <br />
                 <span className="font-bold text-brand-mocha">{GROOM_DATA.parents.father}</span> <br />dan<br />{' '}
                 <span className="font-bold text-brand-mocha">{GROOM_DATA.parents.mother}</span>
               </p>
@@ -194,9 +196,11 @@ export default function App() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-white/10 via-transparent to-transparent pointer-events-none" />
               </div>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-brand-mocha mb-2 text-shadow">
-                {BRIDE_DATA.fullName}
-              </h3>
+              <div id="bride-name-box" className="inline-block bg-[#005691] text-white px-4 py-1.5 rounded-xl shadow-sm mb-3 max-w-full">
+                <h3 className="font-serif text-[12px] min-[360px]:text-[13.5px] min-[390px]:text-[15px] sm:text-lg md:text-xl font-bold tracking-tight whitespace-nowrap text-white">
+                  {BRIDE_DATA.fullName}
+                </h3>
+              </div>
               <p className="text-xs sm:text-sm text-brand-brown/95 max-w-xs mx-auto leading-relaxed text-shadow-sm font-medium">
                 Putri Pertama Dari Pasangan <br />
                 <span className="font-bold text-brand-mocha">{BRIDE_DATA.parents.father}</span> <br />dan<br />{' '}
