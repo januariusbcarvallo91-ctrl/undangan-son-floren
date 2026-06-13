@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Undangan Pernikahan Arto &amp; Ovin - Undangan Digital Glassmorphic</title>
+    <meta name="description" content="Undangan Pernikahan digital Arto &amp; Ovin. Bergabunglah bersama kami untuk merayakan hari bahagia pernikahan kami pada 19 Juni 2026." />
+    
+    <!-- Open Graph / Facebook Meta Tags (for WhatsApp, Facebook, etc.) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://wedding-invitation-arto-ovin.web.app" />
+    <meta property="og:title" content="The Wedding Of" />
+    <meta property="og:description" content="Arto &amp; Ovin &#8212; Jumat, 19 Juni 2026" />
+    <meta property="og:image" content="https://wedding-invitation-arto-ovin.web.app/cover-depan.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="800" />
+    <meta property="og:image:height" content="600" />
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="The Wedding Of" />
+    <meta name="twitter:description" content="Arto &amp; Ovin &#8212; Jumat, 19 Juni 2026" />
+    <meta name="twitter:image" content="https://wedding-invitation-arto-ovin.web.app/cover-depan.jpg" />
+    
+    <!-- Tailwind CSS for modern, responsive layout -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif': ['"Cormorant Garamond"', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                        'headline-sm': ['"Cormorant Garamond"', 'serif'],
+                        'headline-md': ['"Cormorant Garamond"', 'serif'],
+                    },
+                    colors: {
+                        primary: '#ffe2ab',
+                        'primary-fixed-dim': '#fbbc00',
+                        'on-surface-variant': '#d4c5ab',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Cormorant Garamond for headers, Inter for body -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- FontAwesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            scroll-behavior: smooth;
+        }
+        .font-serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        /* Lock scroll before opening invitation */
+        .no-scroll {
+            overflow: hidden;
+            height: 100vh;
+        }
+        /* Custom scrollbar for wishes container */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.8);
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        /* Background Slideshow */
+        .bg-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            filter: brightness(0.35) contrast(1.05);
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .text-shadow-sm {
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleX {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+        @keyframes fadeInSimple {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fade-in-up {
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-scale-x {
+            transform: scaleX(0);
+            transform-origin: center;
+            animation: scaleX 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-fade-in-simple {
+            opacity: 0;
+            animation: fadeInSimple 1.2s ease-out forwards;
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-600 { animation-delay: 600ms; }
+        .delay-800 { animation-delay: 800ms; }
+        .delay-1000 { animation-delay: 1000ms; }
+        .delay-1200 { animation-delay: 1200ms; }
+
+        /* Scroll Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.revealed {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .reveal-cascade > * {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-cascade.revealed > * {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .reveal-cascade.revealed > *:nth-child(1) { transition-delay: 100ms; }
+        .reveal-cascade.revealed > *:nth-child(2) { transition-delay: 200ms; }
+        .reveal-cascade.revealed > *:nth-child(3) { transition-delay: 300ms; }
+        .reveal-cascade.revealed > *:nth-child(4) { transition-delay: 400ms; }
+        .reveal-cascade.revealed > *:nth-child(5) { transition-delay: 500ms; }
+        .reveal-cascade.revealed > *:nth-child(6) { transition-delay: 600ms; }
+
+        /* Slow Reveal specifically for Gallery Images (Observed individually) */
+        .reveal-image {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-image.revealed {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Left/Right Scroll Reveals */
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-50px) scale(0.8);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-left.revealed {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(50px) scale(0.8);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-right.revealed {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    </style>
+</head>
+<body class="no-scroll">
+    <!-- Background Slideshow -->
+    <div class="bg-slideshow" id="bg-slideshow-container">
+        <div class="slide active" style="background-image: url('/foto-1.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-2.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-3.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-4.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-5.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-6.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-7.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-8.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-9.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-10.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-11.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-12.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-13.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-14.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-15.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-16.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-17.jpg');"></div>
+        <div class="slide" style="background-image: url('/foto-18.jpg');"></div>
+    </div>
+    
+    <!-- BGM Audio Element -->
+    <audio id="bgm" loop="" src="/lagu.mp3"></audio>
+    
+    <!-- 1. COVER / LANDING PAGE -->
+    <div class="fixed inset-0 z-[100] flex flex-col items-center justify-end pb-16 px-4 transition-all duration-1000 bg-cover bg-center" style="background-image: url('/cover-depan.jpg');" id="cover">
+        <!-- Elegant Bottom Gradient -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20 pointer-events-none"></div>
+        
+        <div class="text-center text-white max-w-lg z-10 w-full">
+            <!-- Elegant Category Label -->
+            <p class="tracking-[0.4em] uppercase text-xs text-amber-200/90 font-semibold mb-3 text-shadow-sm animate-fade-in-up delay-200">THE WEDDING OF</p>
+            
+            <!-- Mempelai Name -->
+            <h1 class="font-serif text-5xl md:text-6xl font-light tracking-wide text-white mb-2 text-shadow animate-fade-in-up delay-400">Arto &amp; Ovin</h1>
+            
+            <!-- Event Date -->
+            <p class="text-xs tracking-[0.2em] text-gray-300 font-light mb-8 text-shadow-sm animate-fade-in-up delay-600">Jumat, 19 Juni 2026</p>
+            
+            <!-- Thin Divider Line -->
+            <div class="w-16 h-[1px] bg-amber-200/30 mx-auto my-6 animate-scale-x delay-800"></div>
+            
+            <!-- Guest Name Section -->
+            <div class="mb-8 text-center animate-fade-in-up delay-1000">
+                <span class="text-[9px] tracking-[0.2em] text-gray-300 uppercase block mb-1 text-shadow-sm">Kepada Yth. Bapak/Ibu/Saudara/i:</span>
+                <h2 class="font-serif text-2xl font-semibold text-amber-100 mt-2 text-shadow" id="guest-name">[Nama Tamu]</h2>
+            </div>
+            
+            <!-- Elegant Minimalist Button -->
+            <div class="animate-fade-in-up delay-1200">
+                <button class="cursor-pointer border border-amber-200/40 hover:border-amber-200 bg-black/40 hover:bg-black/60 text-amber-100 px-8 py-3 rounded-full text-xs font-semibold tracking-[0.2em] uppercase shadow-lg transition duration-500 transform hover:scale-105 active:scale-95 inline-flex items-center gap-2" id="btn-open-invitation" onclick="openInvitation()">
+                    <span class="material-symbols-outlined text-sm">mail_outline</span> Buka Undangan
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Audio Toggle Button -->
+    <button class="material-symbols-outlined fixed bottom-6 right-6 z-50 w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 text-primary rounded-full shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] flex items-center justify-center cursor-pointer hover:bg-white/20 hover:scale-105 active:scale-95 transition opacity-0 pointer-events-none" id="audio-toggle" onclick="toggleAudio()">music_note</button>
+    
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-xl mx-auto relative min-h-screen pb-8 pt-20 px-2 sm:px-4 space-y-12" id="main-content">
+        <!-- 2. WELCOME / AYAT SUCI -->
+        <section class="min-h-[85vh] flex flex-col justify-between py-12 px-4 text-center reveal" id="section-welcome">
+            <!-- Top Block: Ayat Suci and Title -->
+            <div class="space-y-6 my-auto">
+                <!-- Ayat Suci -->
+                <div class="max-w-xs mx-auto">
+                    <p class="italic text-gray-200 leading-relaxed text-xs text-shadow-sm font-light">
+                        "Dan Diatas Semuanya Itu Kenakanlah Kasih Sebagai Pengikat Yang Mempersatukan Dan Menyempurnakan"
+                    </p>
+                    <span class="text-[10px] font-semibold tracking-wider text-amber-200/90 uppercase text-shadow-sm block mt-1">— Kolose 3:14</span>
+                </div>
+                
+                <!-- Thin Divider Line -->
+                <div class="w-12 h-[1px] bg-amber-200/20 mx-auto"></div>
+                
+                <!-- Title -->
+                <div>
+                    <p class="tracking-[0.4em] uppercase text-[9px] text-amber-200/90 font-semibold mb-2 text-shadow-sm">THE WEDDING OF</p>
+                    <h2 class="font-serif text-4xl md:text-5xl font-light tracking-wide text-white mb-2 text-shadow">Arto &amp; Ovin</h2>
+                    <p class="text-[10px] tracking-[0.2em] text-gray-300 font-light text-shadow-sm">Jumat, 19 Juni 2026</p>
+                </div>
+            </div>
+
+            <!-- Bottom Block: Chevron Indicator -->
+            <div class="animate-bounce mt-auto pt-10">
+                <span class="text-[9px] tracking-[0.2em] text-gray-400 uppercase block mb-1">Scroll Down</span>
+                <i class="fa-solid fa-chevron-down text-amber-200/60 text-base"></i>
+            </div>
+        </section>
+        
+        <!-- 3. PROFIL MEMPELAI -->
+        <section class="glass-card p-8 text-center reveal" id="section-couple">
+            <!-- The Groom -->
+            <div class="mb-16 reveal-left">
+                <p class="tracking-[0.3em] uppercase text-sm text-amber-200/90 mb-4 font-serif font-medium">The Groom</p>
+                <div class="w-60 h-80 mx-auto rounded-2xl overflow-hidden border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.4)] mb-6 relative group">
+                    <img alt="Groom Photo" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="/pengantin-pria.jpg"/>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                </div>
+                <h3 class="font-serif text-2xl font-semibold text-white mb-3 text-shadow">YULIANUS DIARTO JARDIN</h3>
+                <p class="text-sm text-gray-100 max-w-xs mx-auto leading-relaxed text-shadow-sm font-light">
+                    Putra Pertama Dari Pasangan <br/>
+                    <span class="font-semibold text-white">Bapak Marsellus Maat</span> <br/>dan<br/> <span class="font-semibold text-white">Ibu Melania Naul</span>
+                </p>
+            </div>
+            
+            <!-- Divider Icon -->
+            <div class="flex items-center justify-center my-8 text-amber-200/50 reveal">
+                <div class="h-[1px] w-12 bg-amber-200/30"></div>
+                <i class="fa-solid fa-heart mx-4 text-sm"></i>
+                <div class="h-[1px] w-12 bg-amber-200/30"></div>
+            </div>
+            
+            <!-- The Bride -->
+            <div class="mt-12 reveal-right">
+                <p class="tracking-[0.3em] uppercase text-sm text-amber-200/90 mb-4 font-serif font-medium">The Bride</p>
+                <div class="w-60 h-80 mx-auto rounded-2xl overflow-hidden border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.4)] mb-6 relative group">
+                    <img alt="Bride Photo" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="/pengantin-wanita.jpg"/>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                </div>
+                <h3 class="font-serif text-2xl font-semibold text-white mb-3 text-shadow">YOVITA JUITA</h3>
+                <p class="text-sm text-gray-100 max-w-xs mx-auto leading-relaxed text-shadow-sm font-light">
+                    Putri Pertama Dari Pasangan <br/>
+                    <span class="font-semibold text-white">Bapak Yosef Tatu</span> <br/>dan<br/> <span class="font-semibold text-white">Ibu Agata Dajung</span>
+                </p>
+            </div>
+        </section>
+        
+        <!-- 4. LOVE STORY -->
+        <section class="glass-card p-8 reveal-cascade" id="section-story">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-book-open text-amber-200/50 text-2xl mb-3"></i>
+                <h2 class="font-serif text-3xl text-amber-100 text-shadow-sm">Our Love Story</h2>
+                <div class="w-12 h-[2px] bg-amber-200/30 mx-auto mt-3"></div>
+            </div>
+            
+            <div class="space-y-4 text-sm text-gray-200 leading-relaxed text-center font-light">
+                <p>
+                    Kami memulai seperti kebanyakan cerita lainnya: saling mengenal, merasa nyaman, lalu memutuskan untuk bersama. Saat itu semuanya terasa mudah dan menyenangkan. Waktu membawa kami semakin dekat, melewati berbagai cerita, tawa, dan ujian.
+                </p>
+                <p>
+                    Perjalanan ini tentunya tidak hanya dipenuhi bahagia, tetapi juga air mata. Jarak dan benturan ego yang belum bisa dipahami sempat membuat kami berpisah di tengah perjalanan. Kami berjalan masing-masing, mencoba melanjutkan hidup seperti biasa.
+                </p>
+                <p>
+                    Namun, takdir rupanya hanya memberi kami jeda, bukan titik akhir. Percakapan sederhana pada tahun 2024 melalui IG kembali membangun kenyamanan yang sempat hilang, serta menautkan kami kembali dengan versi diri yang lebih matang.
+                </p>
+                <p>
+                    Tanggal 28 November 2025, kami mantap membawa komitmen ini ke tahap lamaran. Tidak ada yang menyangka perkenalan biasa 4 tahun lalu akan membawa kami sejauh ini. Kami hanyalah dua pribadi dengan segala kekurangan masing-masing, yang terus belajar saling menjaga dan saling menerima.
+                </p>
+                <p>
+                    Kami bertahan bukan karena semuanya mudah, melainkan karena doa yang tidak pernah putus, hati yang tetap memilih, dan keyakinan bahwa setiap luka akan bermuara pada restu. Kami meyakini bahwa takdir terbaik selalu menemukan jalannya. Kini, dengan penuh syukur, kami menantikan hari sakral ketika dua jiwa dipersatukan dalam satu ikatan suci.
+                </p>
+            </div>
+        </section>
+        
+        <!-- 5. SAVE THE DATE & COUNTDOWN -->
+        <section class="glass-card p-8 text-center reveal-cascade" id="section-countdown">
+            <h2 class="font-serif text-3xl text-amber-100 mb-4 text-shadow-sm">Menghitung Hari</h2>
+            <p class="text-xs tracking-widest text-gray-200 uppercase mb-8 text-shadow-sm">Menuju Momen Istimewa</p>
+            
+            <!-- Countdown Grid -->
+            <div class="grid grid-cols-4 gap-2 max-w-sm mx-auto mb-8" id="countdown">
+                <div class="glass-card p-3 !rounded-lg">
+                    <span class="block font-serif text-2xl md:text-3xl font-semibold text-amber-200 text-shadow" id="days">00</span>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-200">Hari</span>
+                </div>
+                <div class="glass-card p-3 !rounded-lg">
+                    <span class="block font-serif text-2xl md:text-3xl font-semibold text-amber-200 text-shadow" id="hours">00</span>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-200">Jam</span>
+                </div>
+                <div class="glass-card p-3 !rounded-lg">
+                    <span class="block font-serif text-2xl md:text-3xl font-semibold text-amber-200 text-shadow" id="minutes">00</span>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-200">Menit</span>
+                </div>
+                <div class="glass-card p-3 !rounded-lg">
+                    <span class="block font-serif text-2xl md:text-3xl font-semibold text-amber-200 text-shadow" id="seconds">00</span>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-200">Detik</span>
+                </div>
+            </div>
+            
+            <!-- Calendar button -->
+            <a class="inline-flex items-center gap-2 glass-card hover:bg-white/20 text-white text-xs font-semibold py-2.5 px-5 rounded-full transition shadow-sm" id="btn-calendar-add" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Pernikahan+Arto+%26+Ovin&amp;dates=20260619T080000Z%2F20260619T140000Z&amp;details=Pernikahan+Yulianus+Diarto+Jardin+%28Arto%29+%26+Yovita+Juita+%28Ovin%29.%0A%0ABerkat+Nikah%3A+16.00+WITA+di+Gereja+Tritunggal+Maha+Kudus+Ranggu.%0AResepsi%3A+19.00+WITA+di+Halaman+Kampung+Dadar.&amp;location=Gereja+Tritunggal+Maha+Kudus+Ranggu&amp;sf=true&amp;output=xml" target="_blank">
+                <i class="fa-regular fa-calendar-plus"></i> Ingatkan Saya via Google Calendar
+            </a>
+        </section>
+        
+        <!-- 6 & 7. ACARA (BERKAT NIKAH & RESEPSI) -->
+        <section class="glass-card p-8 relative overflow-hidden reveal-cascade" id="section-agenda">
+            <!-- Decorative Light Glow -->
+            <div class="absolute -top-12 -left-12 w-40 h-40 bg-amber-200/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -right-12 w-40 h-40 bg-amber-200/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="text-center mb-10 relative z-10">
+                <span class="tracking-[0.3em] uppercase text-[10px] text-amber-200/80 font-semibold block mb-2">Save The Date</span>
+                <div class="w-16 h-[1px] bg-gradient-to-r from-transparent via-amber-200/40 to-transparent mx-auto mt-3"></div>
+            </div>
+            
+            <div class="space-y-8 relative z-10 reveal-cascade">
+                <!-- Berkat Nikah Card -->
+                <div class="glass-card p-6 border border-white/10 hover:border-amber-200/30 transition-all duration-500 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-amber-200/5 rounded-bl-full pointer-events-none transition-all duration-500 group-hover:scale-110"></div>
+                    
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full bg-amber-200/10 border border-amber-200/20 flex items-center justify-center mb-4">
+                            <span class="material-symbols-outlined text-amber-200 text-lg">church</span>
+                        </div>
+                        <h3 class="font-serif text-2xl font-medium tracking-wide text-amber-100 mb-4">Berkat Nikah</h3>
+                        
+                        <!-- Divider Line -->
+                        <div class="w-12 h-[1px] bg-amber-200/20 mb-4"></div>
+                        
+                        <div class="text-sm text-gray-200 space-y-3 font-light mb-6 w-fit mx-auto text-left">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-amber-200/80 text-sm shrink-0">calendar_month</span>
+                                <span class="font-medium">Jumat, 19 Juni 2026</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-amber-200/80 text-sm shrink-0">schedule</span>
+                                <span>16.00 WITA</span>
+                            </div>
+                            <div class="flex items-start gap-3 mt-1">
+                                <span class="material-symbols-outlined text-amber-200/80 text-sm shrink-0 mt-0.5">location_on</span>
+                                <span class="text-xs leading-relaxed max-w-[210px] text-gray-300">
+                                    Gereja Tritunggal Maha Kudus Ranggu
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <a class="cursor-pointer inline-flex items-center gap-2 border border-amber-200/30 bg-amber-200/5 hover:bg-amber-200/15 hover:border-amber-200 text-amber-100 text-xs font-semibold py-2.5 px-6 rounded-full shadow-md transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0" id="btn-map-akad" href="https://maps.app.goo.gl/RR9X3JCB88ymXPn57" target="_blank">
+                            <span class="material-symbols-outlined text-xs">map</span> Peta Lokasi
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Resepsi Card -->
+                <div class="glass-card p-6 border border-white/10 hover:border-amber-200/30 transition-all duration-500 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-amber-200/5 rounded-bl-full pointer-events-none transition-all duration-500 group-hover:scale-110"></div>
+                    
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full bg-amber-200/10 border border-amber-200/20 flex items-center justify-center mb-4">
+                            <span class="material-symbols-outlined text-amber-200 text-lg">wine_bar</span>
+                        </div>
+                        <h3 class="font-serif text-2xl font-medium tracking-wide text-amber-100 mb-4">Resepsi</h3>
+                        
+                        <!-- Divider Line -->
+                        <div class="w-12 h-[1px] bg-amber-200/20 mb-4"></div>
+                        
+                        <div class="text-sm text-gray-200 space-y-3 font-light mb-6 w-fit mx-auto text-left">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-amber-200/80 text-sm shrink-0">calendar_month</span>
+                                <span class="font-medium">Jumat, 19 Juni 2026</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-amber-200/80 text-sm shrink-0">schedule</span>
+                                <span>19.00 WITA s/d Selesai</span>
+                            </div>
+                            <div class="flex items-start gap-3 mt-1">
+                                <span class="material-symbols-outlined text-amber-200/80 text-sm shrink-0 mt-0.5">location_on</span>
+                                <span class="text-xs leading-relaxed max-w-[210px] text-gray-300">
+                                    Halaman Kampung Dadar
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <a class="cursor-pointer inline-flex items-center gap-2 border border-amber-200/30 bg-amber-200/5 hover:bg-amber-200/15 hover:border-amber-200 text-amber-100 text-xs font-semibold py-2.5 px-6 rounded-full shadow-md transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0" id="btn-map-resepsi" href="https://maps.app.goo.gl/EEhb42sVRHGzCBAR7" target="_blank">
+                            <span class="material-symbols-outlined text-xs">map</span> Peta Lokasi
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 8. GALERI FOTO -->
+        <section class="glass-card p-3 sm:p-6 reveal" id="section-gallery">
+            <div class="text-center mb-8">
+                <i class="fa-regular fa-images text-amber-200/50 text-2xl mb-3"></i>
+                <h2 class="font-serif text-3xl text-amber-100 text-shadow-sm">Galeri</h2>
+                <div class="w-12 h-[2px] bg-amber-200/30 mx-auto mt-3"></div>
+            </div>
+            <!-- Masonry Photo Grid (Uncropped and Clickable) -->
+            <div class="flex flex-wrap justify-center gap-2">
+                <!-- Foto 1 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(0)">
+                    <img alt="Gallery 1" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-1.jpg"/>
+                </div>
+                <!-- Foto 2 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" style="transition-delay: 150ms;" onclick="openLightbox(1)">
+                    <img alt="Gallery 2" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-2.jpg"/>
+                </div>
+                <!-- Foto 3 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(2)">
+                    <img alt="Gallery 3" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-3.jpg"/>
+                </div>
+                <!-- Foto 4 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(3)">
+                    <img alt="Gallery 4" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-4.jpg"/>
+                </div>
+                <!-- Foto 5 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" style="transition-delay: 150ms;" onclick="openLightbox(4)">
+                    <img alt="Gallery 5" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-5.jpg"/>
+                </div>
+                <!-- Foto 6 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(5)">
+                    <img alt="Gallery 6" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-6.jpg"/>
+                </div>
+                <!-- Foto 7 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(6)">
+                    <img alt="Gallery 7" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-7.jpg"/>
+                </div>
+                <!-- Foto 8 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" style="transition-delay: 150ms;" onclick="openLightbox(7)">
+                    <img alt="Gallery 8" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-8.jpg"/>
+                </div>
+                <!-- Foto 9 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(8)">
+                    <img alt="Gallery 9" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-9.jpg"/>
+                </div>
+                <!-- Foto 10 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(9)">
+                    <img alt="Gallery 10" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-10.jpg"/>
+                </div>
+                <!-- Foto 11 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" style="transition-delay: 150ms;" onclick="openLightbox(10)">
+                    <img alt="Gallery 11" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-11.jpg"/>
+                </div>
+                <!-- Foto 12 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(11)">
+                    <img alt="Gallery 12" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-12.jpg"/>
+                </div>
+                <!-- Foto 13 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(12)">
+                    <img alt="Gallery 13" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-13.jpg"/>
+                </div>
+                <!-- Foto 14 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" style="transition-delay: 150ms;" onclick="openLightbox(13)">
+                    <img alt="Gallery 14" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-14.jpg"/>
+                </div>
+                <!-- Foto 15 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(14)">
+                    <img alt="Gallery 15" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-15.jpg"/>
+                </div>
+                <!-- Foto 16 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(15)">
+                    <img alt="Gallery 16" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-16.jpg"/>
+                </div>
+                <!-- Foto 17 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" style="transition-delay: 150ms;" onclick="openLightbox(16)">
+                    <img alt="Gallery 17" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-17.jpg"/>
+                </div>
+                <!-- Foto 18 -->
+                <div class="h-32 sm:h-44 overflow-hidden rounded-xl shadow-sm border border-white/20 reveal-image cursor-pointer" onclick="openLightbox(17)">
+                    <img alt="Gallery 18" class="h-full w-auto hover:scale-105 transition duration-500" src="/foto-18.jpg"/>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 9 & 10. RSVP & WEDDING WISHES -->
+        <section class="glass-card p-8 reveal-cascade" id="section-rsvp">
+            <div class="text-center mb-10">
+                <i class="fa-regular fa-paper-plane text-amber-200/50 text-2xl mb-3"></i>
+                <h2 class="font-serif text-3xl text-amber-100 text-shadow-sm">Konfirmasi Kehadiran</h2>
+                <p class="text-xs text-gray-200 mt-2 text-shadow-sm">Bantu kami mempersiapkan jamuan terbaik dengan mengisi form berikut</p>
+            </div>
+            
+            <!-- RSVP Form Container -->
+            <div class="glass-card p-6 mb-10 !rounded-2xl">
+                <form class="space-y-4" id="rsvpForm" onsubmit="handleFormSubmit(event)">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-200 mb-1.5 text-shadow-sm" for="form-name">Nama Anda</label>
+                        <input class="w-full px-4 py-2.5 bg-white/20 border border-white/30 rounded-xl text-sm text-white placeholder-gray-300 focus:outline-none focus:border-amber-300 focus:ring-1 focus:ring-amber-300 transition" id="form-name" placeholder="Masukkan nama lengkap" required="" type="text"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-200 mb-1.5 text-shadow-sm" for="form-status">Konfirmasi Kehadiran</label>
+                        <select class="w-full px-4 py-2.5 bg-white/20 border border-white/30 rounded-xl text-sm text-white focus:outline-none focus:border-amber-300 focus:ring-1 focus:ring-amber-300 transition" id="form-status" required="">
+                            <option class="text-gray-900" disabled="" selected="" value="">— Pilih Status —</option>
+                            <option class="text-gray-900" value="Hadir">Saya Akan Hadir</option>
+                            <option class="text-gray-900" value="Tidak Hadir">Maaf, Tidak Bisa Hadir</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-200 mb-1.5 text-shadow-sm" for="form-wish">Ucapan &amp; Doa Restu (Wedding Wish)</label>
+                        <textarea class="w-full px-4 py-2.5 bg-white/20 border border-white/30 rounded-xl text-sm text-white placeholder-gray-300 focus:outline-none focus:border-amber-300 focus:ring-1 focus:ring-amber-300 transition" id="form-wish" placeholder="Tuliskan doa indah Anda untuk kedua mempelai..." required="" rows="4"></textarea>
+                    </div>
+                    <button class="w-full cursor-pointer bg-white/20 hover:bg-white/30 border border-white/30 text-white font-medium text-sm py-3 rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2" type="submit">
+                        <i class="fa-regular fa-paper-plane"></i> Kirim Ucapan
+                    </button>
+                </form>
+            </div>
+            
+            <!-- PUBLIC WISHES SHOWCASE FEED -->
+            <div>
+                <h3 class="font-serif text-xl text-amber-100 mb-4 flex items-center gap-2 text-shadow-sm">
+                    <i class="fa-regular fa-comments text-base text-amber-200/80"></i> Doa Restu Para Tamu
+                </h3>
+                <!-- Infinite/Scrolling Container Box -->
+                <div class="custom-scrollbar max-h-80 overflow-y-auto space-y-3 pr-2 border-t border-white/20 pt-4" id="wishes-box">
+                    <!-- Loaded dynamically via JavaScript -->
+                    <div class="text-center py-8">
+                        <i class="fa-solid fa-spinner animate-spin text-amber-200 text-2xl"></i>
+                        <p class="text-xs text-gray-300 mt-2">Memuat ucapan...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 11. TURUT MENGUNDANG -->
+        <section class="glass-card p-8 text-center reveal-cascade" id="section-invited">
+            <h2 class="font-serif text-3xl text-amber-100 mb-6 text-shadow-sm">Turut Mengundang</h2>
+            <div class="w-12 h-[2px] bg-amber-200/30 mx-auto mb-8"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left text-sm text-gray-200 max-w-md mx-auto reveal-cascade">
+                <!-- Groom Family -->
+                <div class="glass-card p-5 bg-white/5 border border-white/10 !rounded-xl">
+                    <h4 class="font-serif text-base text-amber-100 font-semibold mb-3 border-b border-white/10 pb-1.5 uppercase tracking-wider">Keluarga Pria</h4>
+                    <ul class="space-y-2 font-light">
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-200 mt-1.5 block w-1.5 h-1.5 rounded-full bg-amber-200 shrink-0"></span>
+                            <span>Keluarga Besar Nampong Orong</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-200 mt-1.5 block w-1.5 h-1.5 rounded-full bg-amber-200 shrink-0"></span>
+                            <span>Keluarga Besar Tangis</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-200 mt-1.5 block w-1.5 h-1.5 rounded-full bg-amber-200 shrink-0"></span>
+                            <span>Kel Besar KSP KOPDIT Suka Damai</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Bride Family -->
+                <div class="glass-card p-5 bg-white/5 border border-white/10 !rounded-xl">
+                    <h4 class="font-serif text-base text-amber-100 font-semibold mb-3 border-b border-white/10 pb-1.5 uppercase tracking-wider">Keluarga Wanita</h4>
+                    <ul class="space-y-2 font-light">
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-200 mt-1.5 block w-1.5 h-1.5 rounded-full bg-amber-200 shrink-0"></span>
+                            <span>Keluarga Besar Dadar Suka Banggang</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-200 mt-1.5 block w-1.5 h-1.5 rounded-full bg-amber-200 shrink-0"></span>
+                            <span>Keluarga Besar UPTD Puskesmas Orong</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 12. FOOTER / CREDIT -->
+    <footer class="text-center py-8 text-xs text-gray-400 font-light reveal border-t border-white/10 max-w-xl mx-auto px-4 mt-6">
+        <div class="flex items-center justify-center gap-2">
+            <span>made by</span>
+            <a href="https://www.instagram.com/ronaldgarum_?igsh=MWx5ZWo2cWVncm00Zg==" target="_blank" class="text-amber-200/80 hover:text-amber-200 hover:scale-110 active:scale-95 transition-all duration-300 inline-flex items-center" title="Instagram @ronaldgarum_">
+                <i class="fa-brands fa-instagram text-xl"></i>
+            </a>
+        </div>
+    </footer>
+    
+    <!-- Navigation bars removed -->
+    
+    <script>
+        // Firebase Configuration (Replace with your actual keys from Firebase Console)
+        const firebaseConfig = {
+            apiKey: "AIzaSyABGbatlyHjGDe8UddPCTNvMnYCWkLTZEA",
+            authDomain: "wedding-invitation-arto-ovin.firebaseapp.com",
+            projectId: "wedding-invitation-arto-ovin",
+            storageBucket: "wedding-invitation-arto-ovin.firebasestorage.app",
+            messagingSenderId: "745858757433",
+            appId: "1:745858757433:web:5eadc2b99cc0fcb33caee8",
+            measurementId: "G-YJNLMSGX21"
+        };
+
+        // Initialize Firebase if credentials are provided
+        let db;
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+            } else {
+                console.warn("Firebase config has placeholders. App is running in demo/offline mode.");
+            }
+        } catch (e) {
+            console.error("Failed to initialize Firebase:", e);
+        }
+
+        // Get unique wedding ID based on URL subdomain or query param
+        function getWeddingId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryId = urlParams.get('wedding');
+            if (queryId) return queryId;
+
+            const hostname = window.location.hostname;
+            const parts = hostname.split('.');
+            if (parts.length <= 1 || hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'default-wedding'; // Fallback ID for testing
+            }
+            return parts[0]; // First subdomain part (e.g. romeo-juliet)
+        }
+
+        const weddingId = getWeddingId();
+
+        // Slideshow Logic
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+
+        setInterval(nextSlide, 5000); // Change slide every 5 seconds
+
+        // Scroll to specific section smoothly
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Disable default browser scroll restoration on refresh
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+            window.scrollTo(0, 0);
+
+            const guest = getQueryParam('to');
+            const guestElement = document.getElementById('guest-name');
+            if (guest) {
+                guestElement.innerText = decodeURIComponent(guest.replace(/[\+_]/g, ' '));
+            } else {
+                guestElement.innerText = "Tamu Undangan Terhormat";
+            }
+            
+            // Load wishes from the server
+            loadWishes();
+        });
+
+        // 2. OPEN INVITATION FLOW (Removes Cover, Plays Music, Re-enables Scrolling)
+        function openInvitation() {
+            const cover = document.getElementById('cover');
+            const audioToggle = document.getElementById('audio-toggle');
+            const bgm = document.getElementById('bgm');
+
+            // Trigger Fullscreen Mode
+            try {
+                const docEl = document.documentElement;
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen();
+                } else if (docEl.mozRequestFullScreen) { // Firefox
+                    docEl.mozRequestFullScreen();
+                } else if (docEl.webkitRequestFullscreen) { // Chrome, Safari, Opera
+                    docEl.webkitRequestFullscreen();
+                } else if (docEl.msRequestFullscreen) { // IE/Edge
+                    docEl.msRequestFullscreen();
+                }
+            } catch (err) {
+                console.warn("Fullscreen request was blocked or not supported:", err);
+            }
+
+            // Fade and move cover up out of viewport
+            cover.style.opacity = '0';
+            
+            // Allow user to scroll content
+            document.body.classList.remove('no-scroll');
+            
+            // Show floating audio control
+            audioToggle.style.opacity = '1';
+            audioToggle.style.pointerEvents = 'auto';
+
+            // Set background music start time to 4 seconds
+            try {
+                bgm.currentTime = 4;
+            } catch (e) {
+                console.warn("Could not set audio currentTime immediately:", e);
+                bgm.addEventListener('loadedmetadata', () => {
+                    bgm.currentTime = 4;
+                }, { once: true });
+            }
+
+            // Attempt to autoplay audio safely
+            bgm.play().catch(error => {
+                console.log("Autoplay blocked or audio loading failed:", error);
+            });
+            
+            // Instantly ensure page is scrolled to top and hide cover
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                cover.classList.add('hidden'); // Fully remove after transition
+
+                // Initialize Intersection Observer for Scroll Reveals after cover is hidden and page layout is stable
+                const revealElements = document.querySelectorAll('.reveal, .reveal-cascade, .reveal-left, .reveal-right, .reveal-image');
+                const revealObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('revealed');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.08,
+                    rootMargin: "0px 0px -40px 0px"
+                });
+                revealElements.forEach(el => revealObserver.observe(el));
+            }, 1000);
+        }
+
+        // 3. BACKGROUND MUSIC TOGGLE INTERACTION
+        function toggleAudio() {
+            const bgm = document.getElementById('bgm');
+            const icon = document.getElementById('audio-toggle');
+
+            if (bgm.paused) {
+                bgm.play();
+                icon.innerText = 'music_note';
+                icon.classList.remove('text-gray-400');
+                icon.classList.add('text-primary');
+            } else {
+                bgm.pause();
+                icon.innerText = 'music_off';
+                icon.classList.remove('text-primary');
+                icon.classList.add('text-gray-400');
+            }
+        }
+
+        // 4. COUNTDOWN TIMER ALGORITHM (Set Event Date target)
+        const targetWeddingDate = new Date("Jun 19, 2026 16:00:00").getTime();
+
+        const countdownInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const difference = targetWeddingDate - now;
+
+            // Math computations for days, hours, minutes, seconds
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            // Update DOM Elements
+            document.getElementById("days").innerText = days < 10 ? "0" + days : days;
+            document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+            document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+            document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+
+            // If countdown expires
+            if (difference < 0) {
+                clearInterval(countdownInterval);
+                document.getElementById("countdown").innerHTML = "<div class='col-span-4 text-center font-serif text-amber-200 py-2 font-semibold text-shadow-sm'>Hari Bahagia Telah Tiba!</div>";
+            }
+        }, 1000);
+
+        // 5. FETCH WISHES FROM FIREBASE (OR LOCAL STORAGE FALLBACK)
+        function loadWishes() {
+            const wishesBox = document.getElementById('wishes-box');
+            
+            if (db) {
+                db.collection('wishes')
+                    .where('weddingId', '==', weddingId)
+                    .orderBy('timestamp', 'desc')
+                    .get()
+                    .then(querySnapshot => {
+                        wishesBox.innerHTML = ''; // Clear spinner
+                        if (querySnapshot.empty) {
+                            wishesBox.innerHTML = '<p class="text-xs text-gray-300 text-center py-4">Belum ada ucapan. Jadilah yang pertama memberikan ucapan!</p>';
+                            return;
+                        }
+                        querySnapshot.forEach(doc => {
+                            renderWishCard(doc.data(), false); // append
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading wishes:', error);
+                        wishesBox.innerHTML = '<p class="text-xs text-red-300 text-center py-4">Gagal memuat ucapan. Silakan segarkan halaman.</p>';
+                    });
+            } else {
+                // LocalStorage Fallback for testing / offline demo mode
+                wishesBox.innerHTML = '';
+                const wishes = JSON.parse(localStorage.getItem(`wishes_${weddingId}`) || '[]');
+                if (wishes.length === 0) {
+                    // Seed some default items for demo
+                    const demoWishes = [
+                        { name: "Andi & Susi", status: "Hadir", wish: "Selamat menempuh hidup baru untuk kedua mempelai! Semoga menjadi keluarga yang sakinah, mawaddah, warahmah. Amin ya rabbal alamin.", timestamp: new Date(Date.now() - 3600000).toISOString() },
+                        { name: "Budi Santoso", status: "Tidak Hadir", wish: "Happy wedding ya! Mohon maaf sekali belum bisa hadir karena sedang dinas di luar kota. Semoga dilancarkan seluruh prosesinya sampai hari H.", timestamp: new Date(Date.now() - 7200000).toISOString() }
+                    ];
+                    localStorage.setItem(`wishes_${weddingId}`, JSON.stringify(demoWishes));
+                    demoWishes.forEach(w => renderWishCard(w, false));
+                } else {
+                    wishes.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                          .forEach(w => renderWishCard(w, false));
+                }
+            }
+        }
+
+        // Render a wish card into the DOM
+        function renderWishCard(wishData, prepend = false) {
+            const wishesBox = document.getElementById('wishes-box');
+            
+            // Check if "no wishes" placeholder is present and remove it
+            if (wishesBox.querySelector('p') && !wishesBox.querySelector('.glass-card')) {
+                wishesBox.innerHTML = '';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'glass-card p-4 !rounded-xl animate-fade-in';
+            
+            const badgeClass = wishData.status === "Hadir" 
+                ? "bg-emerald-500/20 text-emerald-200 border-emerald-500/30" 
+                : "bg-white/10 text-gray-300 border-white/20";
+            const iconBadge = wishData.status === "Hadir" 
+                ? "<i class='fa-solid fa-check text-[8px] mr-0.5'></i>" 
+                : "";
+
+            // Format timestamp nicely
+            const date = new Date(wishData.timestamp);
+            const dateString = date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-1">
+                    <div>
+                        <h5 class="text-xs font-bold text-white text-shadow-sm">${escapeHTML(wishData.name)}</h5>
+                        <span class="text-[8px] text-gray-300 block">${dateString}</span>
+                    </div>
+                    <span class="inline-block text-[9px] font-semibold ${badgeClass} border px-2 py-0.5 rounded-full">${iconBadge} ${wishData.status}</span>
+                </div>
+                <p class="text-xs text-gray-200 leading-relaxed italic text-shadow-sm mt-1">"${escapeHTML(wishData.wish)}"</p>
+            `;
+
+            if (prepend) {
+                wishesBox.insertBefore(card, wishesBox.firstChild);
+                wishesBox.scrollTop = 0;
+            } else {
+                wishesBox.appendChild(card);
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        // 6. FORM SUBMISSION AND POSTING TO FIREBASE (OR LOCAL STORAGE)
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Stop page reload
+
+            const nameInput = document.getElementById('form-name').value;
+            const statusInput = document.getElementById('form-status').value;
+            const wishInput = document.getElementById('form-wish').value;
+
+            const newWish = {
+                weddingId: weddingId,
+                name: nameInput.trim(),
+                status: statusInput.trim(),
+                wish: wishInput.trim(),
+                timestamp: new Date().toISOString()
+            };
+
+            if (db) {
+                db.collection('wishes').add(newWish)
+                .then(() => {
+                    renderWishCard(newWish, true); // prepend to wishes box
+                    
+                    // Reset form fields
+                    document.getElementById('rsvpForm').reset();
+                    
+                    alert("Terima kasih! Ucapan Anda telah berhasil dikirim.");
+                })
+                .catch(error => {
+                    console.error('Error submitting wish:', error);
+                    alert("Maaf, terjadi kesalahan saat mengirim ucapan Anda. Silakan coba lagi.");
+                });
+            } else {
+                // LocalStorage Fallback for testing / offline demo mode
+                const wishes = JSON.parse(localStorage.getItem(`wishes_${weddingId}`) || '[]');
+                wishes.push(newWish);
+                localStorage.setItem(`wishes_${weddingId}`, JSON.stringify(wishes));
+                
+                renderWishCard(newWish, true); // prepend to wishes box
+                
+                // Reset form fields
+                document.getElementById('rsvpForm').reset();
+                
+                alert("Terima kasih! Ucapan Anda telah disimpan secara lokal (Offline Demo Mode).");
+            }
+        }
+
+        // Lightbox Modal functions
+        const galleryImages = [
+            '/foto-1.jpg',
+            '/foto-2.jpg',
+            '/foto-3.jpg',
+            '/foto-4.jpg',
+            '/foto-5.jpg',
+            '/foto-6.jpg',
+            '/foto-7.jpg',
+            '/foto-8.jpg',
+            '/foto-9.jpg',
+            '/foto-10.jpg',
+            '/foto-11.jpg',
+            '/foto-12.jpg',
+            '/foto-13.jpg',
+            '/foto-14.jpg',
+            '/foto-15.jpg',
+            '/foto-16.jpg',
+            '/foto-17.jpg',
+            '/foto-18.jpg'
+        ];
+        let currentLightboxIndex = 0;
+
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            const modal = document.getElementById('lightbox-modal');
+            const img = document.getElementById('lightbox-img');
+            
+            img.src = galleryImages[currentLightboxIndex];
+            modal.classList.remove('hidden');
+            
+            // Trigger reflow for transition
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                img.classList.remove('scale-95');
+                img.classList.add('scale-100');
+            }, 10);
+            
+            // Prevent scrolling on body when lightbox is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const modal = document.getElementById('lightbox-modal');
+            const img = document.getElementById('lightbox-img');
+            
+            modal.classList.add('opacity-0');
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                img.src = '';
+                // Restore body scrolling only if invitation is opened
+                if (!document.body.classList.contains('no-scroll')) {
+                    document.body.style.overflow = '';
+                }
+            }, 300);
+        }
+
+        function updateLightboxImage(index) {
+            currentLightboxIndex = (index + galleryImages.length) % galleryImages.length;
+            const img = document.getElementById('lightbox-img');
+            
+            // Apply fade out effect before switching source for smooth transition
+            img.style.opacity = '0';
+            img.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                img.src = galleryImages[currentLightboxIndex];
+                img.onload = () => {
+                    img.style.opacity = '1';
+                    img.style.transform = 'scale(1)';
+                };
+            }, 150);
+        }
+
+        function nextLightbox() {
+            updateLightboxImage(currentLightboxIndex + 1);
+        }
+
+        function prevLightbox() {
+            updateLightboxImage(currentLightboxIndex - 1);
+        }
+
+        // Keyboard navigation for Lightbox
+        document.addEventListener('keydown', function(event) {
+            const modal = document.getElementById('lightbox-modal');
+            if (modal && !modal.classList.contains('hidden')) {
+                if (event.key === 'ArrowRight') {
+                    nextLightbox();
+                } else if (event.key === 'ArrowLeft') {
+                    prevLightbox();
+                } else if (event.key === 'Escape') {
+                    closeLightbox();
+                }
+            }
+        });
+    </script>
+    <!-- LIGHTBOX MODAL -->
+    <div id="lightbox-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/95 backdrop-blur-md opacity-0 transition-opacity duration-300" onclick="closeLightbox()">
+        <!-- Close Button -->
+        <button class="absolute top-6 right-6 text-white hover:text-amber-200 text-3xl font-light focus:outline-none cursor-pointer z-50" onclick="closeLightbox()">&times;</button>
+        
+        <!-- Previous Button -->
+        <button class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all duration-300 z-50 focus:outline-none" onclick="event.stopPropagation(); prevLightbox()">
+            <span class="material-symbols-outlined text-2xl">chevron_left</span>
+        </button>
+
+        <!-- Image Container -->
+        <div class="max-w-[80vw] max-h-[85vh] flex items-center justify-center p-4 relative" onclick="event.stopPropagation()">
+            <img id="lightbox-img" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl scale-95 transition duration-300" src="" alt="Zoomed Image"/>
+        </div>
+
+        <!-- Next Button -->
+        <button class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all duration-300 z-50 focus:outline-none" onclick="event.stopPropagation(); nextLightbox()">
+            <span class="material-symbols-outlined text-2xl">chevron_right</span>
+        </button>
+    </div>
+</body>
+</html>
