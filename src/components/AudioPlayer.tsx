@@ -93,10 +93,29 @@ export default function AudioPlayer({ isOpen }: AudioPlayerProps) {
     }
   };
 
+  // Google Drive sharing URL provided by the user
+  const DRIVE_SOURCE_URL = 'https://drive.google.com/file/d/18EjjagLe1KRtfqBWELEjvTPQjcFsSxpH/view?usp=sharing';
+
+  // Helper function to extract Google Drive File ID and build the direct playback stream link
+  const getDriveStreamUrl = (url: string): string => {
+    try {
+      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return `https://docs.google.com/uc?export=download&id=${match[1]}`;
+      }
+    } catch (e) {
+      console.error('Error parsing drive link:', e);
+    }
+    // Safe royalty-free / open-source classical back up if parsing fails
+    return 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Canon_in_D_Major_%28ISRC_USUAN1100301%29.mp3';
+  };
+
+  const streamUrl = getDriveStreamUrl(DRIVE_SOURCE_URL);
+
   return (
     <>
-      {/* Hidden local/network audio player pointing directly to local file source */}
-      <audio ref={audioRef} src="/mari-menua-bersama.mp3" loop preload="auto" />
+      {/* Hidden Google Drive direct streaming audio player */}
+      <audio ref={audioRef} src={streamUrl} loop preload="auto" />
 
       {/* Floating Control Button */}
       <AnimatePresence>

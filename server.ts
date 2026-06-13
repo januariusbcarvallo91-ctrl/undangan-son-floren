@@ -113,95 +113,26 @@ async function startServer() {
   // Parse JSON payloads
   app.use(express.json());
 
-  // Direct route for serving the local song
-  app.get('/mari-menua-bersama.mp3', (req, res) => {
-    try {
-      const filePath = path.join(process.cwd(), 'mari-menua-bersama.mp3');
-      if (fs.existsSync(filePath)) {
-        res.setHeader('Content-Type', 'audio/mpeg');
-        return res.sendFile(filePath);
-      }
-      
-      const fallbackPath = path.join(process.cwd(), 'wedding-song.mp3');
-      if (fs.existsSync(fallbackPath)) {
-        res.setHeader('Content-Type', 'audio/mpeg');
-        return res.sendFile(fallbackPath);
-      }
-
-      // Wikipedia fallback as last resort
-      res.redirect(302, 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Canon_in_D_Major_%28ISRC_USUAN1100301%29.mp3');
-    } catch (err) {
-      console.error('Direct audio serving failed:', err);
-      res.status(500).send('Internal Server Error serving audio');
-    }
-  });
-
-  // Audio stream dispatcher
+  // Audio stream dispatcher redirecting directly to public Google Drive file
   app.get('/api/audio', (req, res) => {
     try {
-      const config = loadMusicConfig();
-      if (config.type === 'local') {
-        const preferredPath = path.join(process.cwd(), 'mari-menua-bersama.mp3');
-        const fallbackPath = path.join(process.cwd(), 'wedding-song.mp3');
-        
-        if (fs.existsSync(preferredPath)) {
-          res.setHeader('Content-Type', 'audio/mpeg');
-          return res.sendFile(preferredPath);
-        } else if (fs.existsSync(fallbackPath)) {
-          res.setHeader('Content-Type', 'audio/mpeg');
-          return res.sendFile(fallbackPath);
-        }
-      } else if (config.type === 'drive' && config.driveId) {
-        // Direct stream links for public items on Google Drive
-        const driveUrl = `https://docs.google.com/uc?export=download&id=${config.driveId}`;
-        return res.redirect(302, driveUrl);
-      }
-      
-      // Default placeholder playlist tune (Canon in D)
-      const audioUrl = 'https://upload.wikimedia.org/wikipedia/commons/c/c6/Canon_in_D_Major_%28ISRC_USUAN1100301%29.mp3';
-      res.redirect(302, audioUrl);
+      const driveId = '18EjjagLe1KRtfqBWELEjvTPQjcFsSxpH';
+      const driveUrl = `https://docs.google.com/uc?export=download&id=${driveId}`;
+      res.redirect(302, driveUrl);
     } catch (err) {
-      console.error('Audio stream fetching or redirect failed:', err);
+      console.error('Audio stream redirect failed:', err);
       res.status(500).send('Internal Server Error fetching audio');
     }
   });
 
   // Music config GET route
   app.get('/api/music-config', (req, res) => {
-    res.json(loadMusicConfig());
+    res.json({ type: 'drive', driveId: '18EjjagLe1KRtfqBWELEjvTPQjcFsSxpH' });
   });
 
   // Music config POST route
   app.post('/api/music-config', (req, res) => {
-    try {
-      const { type, driveId } = req.body;
-      if (type !== 'default' && type !== 'drive' && type !== 'local') {
-        res.status(400).json({ error: 'Format tipe musik tidak valid' });
-        return;
-      }
-      saveMusicConfig({ type, driveId: driveId || '' });
-      res.json({ success: true, config: { type, driveId } });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message || 'Gagal menyimpan konfigurasi' });
-    }
-  });
-
-  // Binary Audio file upload route
-  app.post('/api/audio-upload', express.raw({ type: '*/*', limit: '20mb' }), (req, res) => {
-    try {
-      if (!req.body || req.body.length === 0) {
-        res.status(400).json({ error: 'File audio kosong atau tidak terkirim' });
-        return;
-      }
-      const audioPath = path.join(process.cwd(), 'mari-menua-bersama.mp3');
-      fs.writeFileSync(audioPath, req.body);
-      
-      saveMusicConfig({ type: 'local', driveId: '' });
-      res.json({ success: true, message: 'Lagu berhasil diunggah' });
-    } catch (err: any) {
-      console.error('Audio upload failed on server:', err);
-      res.status(500).json({ error: err.message || 'Gagal menyimpan file audio' });
-    }
+    res.json({ success: true, config: { type: 'drive', driveId: '18EjjagLe1KRtfqBWELEjvTPQjcFsSxpH' } });
   });
 
   // API Endpoints for Wishes
