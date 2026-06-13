@@ -118,15 +118,23 @@ async function startServer() {
     try {
       const config = loadMusicConfig();
       if (config.type === 'local') {
-        const preferredPath = path.join(process.cwd(), 'mari-menua-bersama.mp3');
-        const fallbackPath = path.join(process.cwd(), 'wedding-song.mp3');
+        const preferredPath = path.join(process.cwd(), 'public', 'mari-menua-bersama.mp3');
+        const preferredPathRoot = path.join(process.cwd(), 'mari-menua-bersama.mp3');
+        const fallbackPath = path.join(process.cwd(), 'public', 'wedding-song.mp3');
+        const fallbackPathRoot = path.join(process.cwd(), 'wedding-song.mp3');
         
         if (fs.existsSync(preferredPath)) {
           res.setHeader('Content-Type', 'audio/mpeg');
           return res.sendFile(preferredPath);
+        } else if (fs.existsSync(preferredPathRoot)) {
+          res.setHeader('Content-Type', 'audio/mpeg');
+          return res.sendFile(preferredPathRoot);
         } else if (fs.existsSync(fallbackPath)) {
           res.setHeader('Content-Type', 'audio/mpeg');
           return res.sendFile(fallbackPath);
+        } else if (fs.existsSync(fallbackPathRoot)) {
+          res.setHeader('Content-Type', 'audio/mpeg');
+          return res.sendFile(fallbackPathRoot);
         }
       } else if (config.type === 'drive' && config.driveId) {
         // Direct stream links for public items on Google Drive
@@ -170,7 +178,11 @@ async function startServer() {
         res.status(400).json({ error: 'File audio kosong atau tidak terkirim' });
         return;
       }
-      const audioPath = path.join(process.cwd(), 'mari-menua-bersama.mp3');
+      const publicDir = path.join(process.cwd(), 'public');
+      if (!fs.existsSync(publicDir)) {
+        fs.mkdirSync(publicDir, { recursive: true });
+      }
+      const audioPath = path.join(publicDir, 'mari-menua-bersama.mp3');
       fs.writeFileSync(audioPath, req.body);
       
       saveMusicConfig({ type: 'local', driveId: '' });

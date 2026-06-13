@@ -11,9 +11,17 @@ interface AudioPlayerProps {
   isOpen: boolean;
 }
 
+const SOURCES = [
+  '/mari-menua-bersama.mp3',
+  '/wedding-song.mp3',
+  '/api/audio',
+  'https://upload.wikimedia.org/wikipedia/commons/c/c6/Canon_in_D_Major_%28ISRC_USUAN1100301%29.mp3'
+];
+
 export default function AudioPlayer({ isOpen }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [sourceIndex, setSourceIndex] = useState(0);
 
   // Play audio when invitation is opened
   useEffect(() => {
@@ -34,21 +42,45 @@ export default function AudioPlayer({ isOpen }: AudioPlayerProps) {
     if (isPlaying) {
       audioRef.current.play().catch((err) => {
         console.warn('Playback block failed:', err);
-        setIsPlaying(false);
       });
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, sourceIndex]);
+
+  // Explicitly reload and play when source index changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.load();
+      if (isPlaying) {
+        audioRef.current.play().catch((err) => {
+          console.warn('Autoplay on source change failed:', err);
+        });
+      }
+    }
+  }, [sourceIndex]);
 
   const togglePlayback = () => {
     setIsPlaying((prev) => !prev);
   };
 
+  const handleAudioError = () => {
+    console.warn(`Audio error for source ${SOURCES[sourceIndex]}. Loading next fallback...`);
+    if (sourceIndex < SOURCES.length - 1) {
+      setSourceIndex((prev) => prev + 1);
+    }
+  };
+
   return (
     <>
       {/* Hidden local/network audio player */}
-      <audio ref={audioRef} src="/api/audio" loop preload="auto" />
+      <audio
+        ref={audioRef}
+        src={SOURCES[sourceIndex]}
+        onError={handleAudioError}
+        loop
+        preload="auto"
+      />
 
       {/* Floating Control Button */}
       <AnimatePresence>
